@@ -1,0 +1,77 @@
+>> Kafka
+-> RealTime Streaming
+-> Collection of BigData
+-> To do real time analysis
+
+1. Used in RealTime Data Architecgtures to provide realtime analytics.
+2. Use IN-MEMORY Microservice to provide durability
+3. Kafka is fast, durablem fault-tolerant publish-subscribe messaging system.
+4. Higher throughput, Reliability, Replication characteristics.
+5. Operational Simplicity.
+6. Distributed streaming platform that is used publish and subscribe to stream of records.
+7. Decoupling data stream
+
+>> Docker-compose file for kafka and zookeeper
+
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+  kafka:
+    image: 'wurstmeister/kafka:latest'
+    container_name: kafka
+    ports:
+      - '9092:9092'
+    expose:
+      - '9093'
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+>> Default Port
+  > Kafka :: 9092
+  > Zookeeper :: 2181
+
+>> After up the dokcer container need to do use bash command which is mentioned below::
+     --> sudo docker exec -it <CONTAINER_NAME> bash
+
+     Now we are reach in container console type and go to bin folder and now you will get access to use kafka sh file.
+
+1. Create Topic
+    --> kafka-topics.sh --create --zookeeper <IMAGE_NAME OR HOST OF ZOOKEEPER>:<PORT> --replication-factor 1 --partitions 1 --topic <TOPIC_NAME>
+2. Describe Topic
+    --> kafka-topics.sh --describe --zookeeper <IMAGE_NAME OR HOST OF ZOOKEEPER>:<PORT> --topic <TOPIC_NAME>
+3. List Of All Topics
+    --> kafka-topics.sh --list --zookeeper <IMAGE_NAME OR HOST OF ZOOKEEPER>:<PORT>
+4. Publish Message on Topic
+    --> kafka-console-producer.sh --broker-list <IMAGE_NAME OR HOST OF KAFKA>:<PORT> --topic <TOPIC_NAME>
+5. Receive Message on Topic
+    --> kafka-console-consumer.sh --bootstrap-server <IMAGE_NAME OR HOST OF KAFKA>:<PORT> --topic <TOPIC_NAME>
+6. Receive Message on Topic From Beginning
+    --> kafka-console-consumer.sh --bootstrap-server <IMAGE_NAME OR HOST OF KAFKA>:<PORT> --topic <TOPIC_NAME> --from-beginning
+
+
+>> Spring Config Changes For Kafka 
+1. For Consumer Application
+    server:
+      port: 8081
+    spring:
+      kafka:
+        consumer:
+          bootstrap-servers: localhost:9092
+          auto-offset-reset: earliest
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+2. For Producer Application
+    server:
+      port: 8080
+    spring:
+      kafka:
+        producer:
+          bootstrap-servers: localhost:9092
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.apache.kafka.common.serialization.StringSerializer
