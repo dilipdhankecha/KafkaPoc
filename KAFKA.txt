@@ -3,13 +3,48 @@
 -> Collection of BigData
 -> To do real time analysis
 
-1. Used in RealTime Data Architecgtures to provide realtime analytics.
-2. Use IN-MEMORY Microservice to provide durability
-3. Kafka is fast, durablem fault-tolerant publish-subscribe messaging system.
-4. Higher throughput, Reliability, Replication characteristics.
-5. Operational Simplicity.
-6. Distributed streaming platform that is used publish and subscribe to stream of records.
-7. Decoupling data stream
+> Used in RealTime Data Architecgtures to provide realtime analytics.
+> Use IN-MEMORY Microservice to provide durability
+> Kafka is fast, durablem fault-tolerant publish-subscribe messaging system.
+> Higher throughput, Reliability, Replication characteristics.
+> Operational Simplicity.
+> Distributed streaming platform that is used publish and subscribe to stream of records.
+> Decoupling data stream
+> Ability to create large clustor
+> Is DISTRIBUTED PUBLISH_SUBSCRIBE MESSAGING SYSTEM
+
+***** BROKER *****(Centralize storage)
+	Producer ------>  Broker  ------> Consumer
+Messages produce and consume syncronize each moment of time.
+If broker is fail then no body will produce or consume messages. so resolve this issue we are build broker cluster.
+
+***** ZOOKEEPER *****
+	If broker cluster having thousands of broker how they communicate with each other?
+> Maintain List of active brokers
+> Manages configuration of the topics and partitions
+> Elects Controller
+	One of the brokers serves as the controller, which is responsible fro managing the states of partitions and replicas and for performing administrative tasks like reassigning partitions.
+	There is single controller in every kafka cluster.
+	Partition and leader decided by controller.
+	If any broker will be failed then autoassign that partition used by fail broker assign to active broker.
+Zookeeper Cluster (Ensemble) :: 
+	Multiple Zookeeper.
+	Having odd number of zookeeper cause quorum set to (n+1)/2 were n is number of servers.
+		Quorum = 2
+		> If 1 of 3 fails ensemble will be still UP.
+		> If 2 of 3 fails ensembe will be DOWN.
+
+***** TOPIC *****
+	Get the messages and append with another messages.
+
+***** PARTITION LEADER AND FOLLOWE *****
+	When any message publish on topic with broker if broker gets fail then we lost all messages so for resolve this issue we are replicas of the messages but when that message publish then how to identify which message comes to serve to consumer?
+	so, for resolve this problem we are introduce leader and follower.
+	from leader broker takes the messages and once leader gets message then it will replicate that message with follower. so, if any broker fail then we are able to recover all messages from follower. using that we are achive fault tolarance using replications.
+> All replicas is in other broker.
+> Partition leader handles partition read/write operations.
+> Replication factor 3 is a recommended number even for production.
+
 
 >> Docker-compose file for kafka and zookeeper
 
@@ -75,3 +110,14 @@ services:
           bootstrap-servers: localhost:9092
           key-serializer: org.apache.kafka.common.serialization.StringSerializer
           value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+
+>> Single Producer with Multiple Consumer
+	Multiple consumers or multiple producers could exchange message via sigle certralized storage point.
+	Each Producer or Each Consumer don't know about other instance of producer or consumer.
+	Producers and consumers may appear and disappear but kafka doesn't care about that. It's job is to store messages and receive or send them on demand.
+	Kafka doesn't store all messages forever and after specific amount of time messages are deleted.
+	Default log retention period is 7 days.
+	Every message inside of the topic has unique number called "offset".
+	First message in each topic has offset 0.
+	Consumers start reading messages starting from specific offset.
